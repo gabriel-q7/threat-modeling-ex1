@@ -81,23 +81,58 @@ PayFlow consists of several key components:
 
 ## Architecture Diagram
 
-```
-[Mobile App] ----\
-                  \
-[Web App] ---------+---> [CDN] ---> [WAF] ---> [API Gateway]
-                                                      |
-                    +---------------------------------+
-                    |
-        +-----------+-----------+-----------+-----------+
-        |           |           |           |           |
-    [Auth Svc] [Account]  [Payment]  [Notify]   [Ledger]
-        |           |           |           |           |
-        +------+----+------+----+------+----+------+----+
-               |           |           |           |
-          [PostgreSQL]  [Redis]    [S3]    [CloudWatch]
-               |
-        External APIs:
-        [Plaid] [Stripe] [Twilio] [SendGrid]
+```mermaid
+flowchart TD
+  subgraph Clients
+    A1[Mobile App]
+    A2[Web App]
+  end
+  subgraph Edge
+    B1[CDN]
+    B2[WAF]
+    B3[API Gateway]
+  end
+  subgraph Backend Services
+    C1[Auth Service]
+    C2[Account Service]
+    C3[Payment Service]
+    C4[Notification Service]
+    C5[Ledger Service]
+  end
+  subgraph Data Layer
+    D1[PostgreSQL]
+    D2[Redis]
+    D3[S3]
+    D4[CloudWatch]
+  end
+  subgraph External Integrations
+    E1[Plaid API]
+    E2[Stripe Connect]
+    E3[Twilio]
+    E4[SendGrid]
+  end
+
+  A1 --> B1
+  A2 --> B1
+  B1 --> B2
+  B2 --> B3
+  B3 --> C1
+  B3 --> C2
+  B3 --> C3
+  B3 --> C4
+  B3 --> C5
+  C1 --> D1
+  C2 --> D1
+  C2 --> D2
+  C2 --> E1
+  C3 --> D1
+  C3 --> D2
+  C3 --> D3
+  C3 --> E2
+  C4 --> D4
+  C4 --> E3
+  C4 --> E4
+  C5 --> D1
 ```
 
 ## TODO: System Architecture Analysis
@@ -118,11 +153,65 @@ Access: API Gateway, direct service-to-service calls
 
 **Your Answer:**
 ```
-[Write your component analysis here]
+Component: Mobile App
+Purpose: Native iOS/Android app for account management, payments, and biometric authentication with push notifications
+Sensitive Data: Biometric templates, JWT tokens, refresh tokens, personal/financial info
+Access: End users via device; communicates with API Gateway (public internet)
 
+Component: Web App
+Purpose: React SPA for user authentication, dashboard, transaction history, and payment initiation
+Sensitive Data: JWT tokens, refresh tokens, personal/financial info
+Access: End user browsers; communicates with API Gateway (public internet)
 
+Component: API Gateway
+Purpose: Single entry point for client requests; validates, authenticates, authorizes, rate limits, and routes to appropriate backend services
+Sensitive Data: JWT tokens, user credentials (during auth), financial data in request bodies, service API keys
+Access: Mobile App, Web App (public internet); all backend services (internal network); sits behind WAF/CDN
 
+Component: Auth Service
+Purpose: 
+Sensitive Data: 
+Access: 
 
+Component: Account Service
+Purpose: 
+Sensitive Data: 
+Access: 
+
+Component: Payment Service
+Purpose: 
+Sensitive Data: 
+Access: 
+
+Component: Notification Service
+Purpose: 
+Sensitive Data: 
+Access: 
+
+Component: Ledger Service
+Purpose: 
+Sensitive Data: 
+Access: 
+
+Component: PostgreSQL Database
+Purpose: 
+Sensitive Data: 
+Access: 
+
+Component: Redis Cache
+Purpose: 
+Sensitive Data: 
+Access: 
+
+Component: S3 Storage
+Purpose: 
+Sensitive Data: 
+Access: 
+
+Component: External APIs (Plaid, Stripe, Twilio, SendGrid)
+Purpose: 
+Sensitive Data: 
+Access: 
 
 
 
